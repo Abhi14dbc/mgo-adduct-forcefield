@@ -1,0 +1,9 @@
+source leaprc.protein.ff19SB
+source leaprc.gaff2
+loadamberprep /home/jyoti/Projects/MGO/mgh_rebuild/MGH.prepi
+loadamberparams /home/jyoti/Projects/MGO/mgh_rebuild/MGH.frcmod
+prot = loadpdb native_dimer_ss.pdb
+bond prot.57.SG prot.146.SG
+bond prot.210.SG prot.299.SG
+saveamberparm prot native_dimer.prmtop native_dimer.inpcrd
+quit

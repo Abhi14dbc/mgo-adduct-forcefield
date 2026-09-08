@@ -1,0 +1,12 @@
+source leaprc.protein.ff19SB
+source leaprc.gaff2
+source leaprc.water.opc
+loadamberprep /home/jyoti/Projects/MGO/mgh_rebuild/MGH.prepi
+loadamberparams /home/jyoti/Projects/MGO/mgh_rebuild/MGH.frcmod
+prot = loadpdb /home/jyoti/Projects/MGO/sod1_new/sod1_apo_chainA.pdb
+
+solvateoct prot OPCBOX 12.0
+addionsrand prot Na+ 24 Cl- 18
+saveamberparm prot native_mono.prmtop native_mono.inpcrd
+savepdb prot native_mono.pdb
+quit

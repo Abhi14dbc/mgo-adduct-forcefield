@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software or these libraries, please cite both the accompanying paper and this deposit."
+title: "Methylglyoxal adduct force field and SOD1 glycation simulations"
+authors:
+  - family-names: Sharma
+    given-names: Abhishek
+    affiliation: "College of Pharmacy, Gachon University, Incheon, Republic of Korea"
+  - family-names: Kim
+    given-names: Sun Yeou
+    affiliation: "College of Pharmacy, Gachon University, Incheon, Republic of Korea"
+    email: sunnykim@gachon.ac.kr
+license: MIT
+keywords:
+  - methylglyoxal
+  - advanced glycation end-products
+  - MG-H1
+  - superoxide dismutase 1
+  - force field
+  - molecular dynamics

@@ -1,0 +1,17 @@
+# trajectories are deposited separately
+*.dcd
+*.nc
+*.chk
+*.rst7
+
+# build noise
+ANTECHAMBER_*
+ATOMTYPE.INF
+NEWPDB.PDB
+PREP.INF
+sqm.in
+sqm.out
+sqm.pdb
+__pycache__/
+*.pyc
+.DS_Store

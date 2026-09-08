@@ -1,0 +1,28 @@
+{
+  "title": "Methylglyoxal adduct force field and SOD1 glycation simulations",
+  "upload_type": "software",
+  "description": "AMBER-compatible residue libraries for four methylglyoxal-derived advanced glycation end-products (MG-H1, argpyrimidine, CEA, CEL), a structure-validation gate that detects stereochemical inversion introduced by adduct grafting, and the simulation and analysis code for a study of site-specific glycation in apo, disulfide-reduced superoxide dismutase 1.",
+  "creators": [
+    {
+      "name": "Sharma, Abhishek",
+      "affiliation": "College of Pharmacy, Gachon University, Incheon, Republic of Korea"
+    },
+    {
+      "name": "Kim, Sun Yeou",
+      "affiliation": "College of Pharmacy, Gachon University, Incheon, Republic of Korea"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "methylglyoxal",
+    "advanced glycation end-products",
+    "MG-H1",
+    "superoxide dismutase 1",
+    "amyotrophic lateral sclerosis",
+    "force field",
+    "molecular dynamics",
+    "AMBER",
+    "OpenMM"
+  ],
+  "access_right": "open"
+}

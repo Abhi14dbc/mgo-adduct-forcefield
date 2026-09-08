@@ -1,0 +1,7 @@
+source leaprc.protein.ff19SB
+source leaprc.gaff2
+loadamberprep /home/jyoti/Projects/MGO/mgh_rebuild/MGH.prepi
+loadamberparams /home/jyoti/Projects/MGO/mgh_rebuild/MGH.frcmod
+prot = loadpdb glyc_SH_grafted.pdb
+saveamberparm prot glyc_SH.prmtop glyc_SH.inpcrd
+quit
