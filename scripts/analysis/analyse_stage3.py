@@ -33,9 +33,14 @@ import numpy as np
 import mdtraj as md
 
 D = os.environ.get("MGO_DIR", "/home/jyoti/Projects/MGO")
-STRIDE = 20              # traj.dcd is 10 ps/frame -> 200 ps, matching the explicit arm
+# Input frame spacing and stride, both overridable so the same script runs on the
+# working trajectories (10 ps, strided by 20) and on the deposited ones (already
+# 200 ps, stride 1). FRAME_PS is their product either way, which matters because
+# switch rates scale with it. Defaults reproduce the published analysis exactly.
+RAW_PS = float(os.environ.get("MGO_RAW_PS", 10.0))   # frame spacing of the input dcd
+STRIDE = int(os.environ.get("MGO_STRIDE", 20))       # 10 ps -> 200 ps, matching explicit
 WINDOW_NS = 150.0        # final 150 ns of each 300 ns run
-FRAME_PS = 10.0 * STRIDE
+FRAME_PS = RAW_PS * STRIDE
 SITE = 142               # Arg143 / MGH143, zero-based
 GLY61, CYS57 = 60, 56
 HIS48 = 47               # third member of the CORE composite
@@ -66,15 +71,34 @@ def switch_rate(d_nm, frame_ps):
     return n / (len(d_nm) * frame_ps / 1e5)
 
 
+def _resolve(tag, base):
+    """Topology and trajectory path for TAG, in either layout.
+
+    working:  $MGO_DIR/<tag>/traj.dcd        + the prmtop named in TOPS
+    deposit:  $MGO_DIR/<condition>/<tag>.dcd + the prmtop deposited beside it
+
+    The deposited trajectories are at 200 ps; set MGO_RAW_PS=200 MGO_STRIDE=1 so
+    the analysis frame spacing stays 200 ps, which switch rates depend on.
+    """
+    wd = os.path.join(D, tag, "traj.dcd")
+    if base in TOPS and os.path.exists(TOPS[base]) and os.path.exists(wd):
+        return md.load_prmtop(TOPS[base]), wd
+    import glob as _glob
+    for cand in _glob.glob(os.path.join(D, "*", tag + ".dcd")):
+        tops = _glob.glob(os.path.join(os.path.dirname(cand), "*.prmtop"))
+        if tops:
+            return md.load_prmtop(tops[0]), cand
+    return None, None
+
+
 def analyse(tag):
     """Implicit-solvent runs have no water, so traj.dcd holds the whole system
     and the prot.dcd/full.dcd hazard of the explicit arm does not arise here.
     The residue assertions are kept regardless -- they are what caught that bug."""
     base = tag.rsplit("_rep", 1)[0]
-    top = md.load_prmtop(TOPS[base])
-    dcd = os.path.join(D, tag, "traj.dcd")
-    if not os.path.exists(dcd):
-        print("  !! missing " + dcd); return None
+    top, dcd = _resolve(tag, base)
+    if top is None:
+        print("  !! no trajectory for " + tag + " under " + D); return None
 
     # fail loudly rather than silently measure the wrong residue
     assert top.residue(SITE).name in ("ARG", "MGH"), tag + " site is " + top.residue(SITE).name

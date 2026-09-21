@@ -65,11 +65,37 @@ termini and not only to grafted adducts.
 
 ## Reproducing the analysis
 
+Trajectories are deposited separately on account of their size; see the record referenced in the
+accompanying paper. With that record downloaded:
+
+```
+./reproduce.sh /path/to/trajectory/deposit
+```
+
+That runs both arms and prints the values to compare against the paper. It reads the
+trajectories in place and writes nothing.
+
 Analysis scripts contain the random seeds used, so bootstrap intervals reproduce exactly rather
 than approximately. Permutation tests are exact enumerations, not sampled.
 
-Trajectories are deposited separately on account of their size; see the record referenced in the
-accompanying paper.
+### Frame spacing
+
+The deposited trajectories are at 200 ps per frame, the resolution at which every reported value
+was computed. `analyse_stage3.py` strides its input by 20 because the working trajectories are
+written at 10 ps, so on the deposit it needs to be told the input is already strided:
+
+```
+MGO_DIR=<deposit>/explicit_mono python analyse_phase1.py
+MGO_DIR=<deposit> MGO_RAW_PS=200 MGO_STRIDE=1 python analyse_stage3.py
+```
+
+`MGO_RAW_PS` x `MGO_STRIDE` is the analysis frame spacing and must come to 200 ps. Occupancies
+and hydrogen-bond counts are time averages and are insensitive to it, but switch rates are not:
+a more finely sampled trajectory reports more transitions for identical physics, which is why
+both solvent arms are analysed at a matched 200 ps.
+
+Both scripts accept either layout. They try the working layout first and fall back to the
+deposited one, so `MGO_DIR` is the only thing that needs setting.
 
 ## Requirements
 

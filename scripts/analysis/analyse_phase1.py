@@ -48,6 +48,27 @@ def switch_rate(d_nm, frame_ps):
     return n / (len(d_nm) * frame_ps / 1e5)
 
 
+def _resolve(tag, base):
+    """Topology and trajectory path for TAG, in either layout.
+
+    working:  $MGO_DIR/<base>.prmtop        + $MGO_DIR/prod/<tag>/full.dcd
+    deposit:  $MGO_DIR/<base>_reduced.pdb   + $MGO_DIR/<tag>.dcd
+
+    full.dcd holds every atom including water; the deposited trajectory holds the
+    protein only, so the solvated prmtop does not match it and the reduced pdb
+    written beside it does. Both carry MGH at residue 142, which prot.dcd did not.
+    """
+    pt = os.path.join(D, base + ".prmtop")
+    pd = os.path.join(D, "prod", tag, "full.dcd")
+    if os.path.exists(pt) and os.path.exists(pd):
+        return md.load_prmtop(pt), pd
+    rp = os.path.join(D, base + "_reduced.pdb")
+    rd = os.path.join(D, tag + ".dcd")
+    if os.path.exists(rp) and os.path.exists(rd):
+        return md.load(rp).topology, rd
+    return None, None
+
+
 def analyse(tag):
     """Load from full.dcd, NOT prot.dcd.
 
@@ -58,10 +79,9 @@ def analyse(tag):
     residues were compared. full.dcd holds every atom, so it is immune.
     """
     base = tag.rsplit("_rep", 1)[0]
-    top = md.load_prmtop(os.path.join(D, base + ".prmtop"))
-    dcd = os.path.join(D, "prod", tag, "full.dcd")
-    if not os.path.exists(dcd):
-        print("  !! missing " + dcd); return None
+    top, dcd = _resolve(tag, base)
+    if top is None:
+        print("  !! no trajectory for " + tag + " under " + D); return None
 
     # fail loudly rather than silently measure the wrong residue again
     assert top.residue(SITE).name in ("ARG", "MGH"), tag + " site is " + top.residue(SITE).name
