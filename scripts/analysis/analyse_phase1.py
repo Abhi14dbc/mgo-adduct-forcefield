@@ -25,9 +25,9 @@ WINDOW_NS = 150.0        # final 150 ns of each 300 ns run
 FRAME_PS = 200.0 * STRIDE
 SITE = 142               # Arg143 / MGH143, zero-based
 GLY61, CYS57 = 60, 56
-HIS48 = 47               # third member of the preregistered CORE
-PREREG_CUT = 0.45        # nm; 4.5 A, the preregistered contact criterion
-PREREG_ALPHA = 0.0042    # Bonferroni, fixed in PREREGISTRATION.md 2026-08-22
+HIS48 = 47               # third member of the CORE composite
+CONTACT_CUT = 0.45        # nm; 4.5 A contact criterion
+ALPHA_CORRECTED = 0.0042    # Bonferroni, 0.05 / 12 endpoints
 LO, HI = 0.42, 0.50      # contact hysteresis band, nm (as in the implicit work)
 N_BOOT = 10000
 RNG = np.random.default_rng(20260904)
@@ -104,12 +104,12 @@ def analyse(tag):
         rmsd=float(md.rmsd(prot, prot, 0, atom_indices=bb).mean() * 10),
         rg=float(md.compute_rg(prot).mean() * 10),
         beta=float((ss == "E").mean() * 100),
-        core_his=float((d_his < PREREG_CUT).mean() * 100),
-        core_cys=float((d_cys < PREREG_CUT).mean() * 100),
-        core_gly=float((d_gly < PREREG_CUT).mean() * 100),
-        core_occ=float(np.mean([(d_his < PREREG_CUT).mean(),
-                                (d_cys < PREREG_CUT).mean(),
-                                (d_gly < PREREG_CUT).mean()]) * 100),
+        core_his=float((d_his < CONTACT_CUT).mean() * 100),
+        core_cys=float((d_cys < CONTACT_CUT).mean() * 100),
+        core_gly=float((d_gly < CONTACT_CUT).mean() * 100),
+        core_occ=float(np.mean([(d_his < CONTACT_CUT).mean(),
+                                (d_cys < CONTACT_CUT).mean(),
+                                (d_gly < CONTACT_CUT).mean()]) * 100),
         n_frames=t.n_frames, site=top.residue(SITE).name)
 
 
@@ -201,9 +201,9 @@ print("=" * 104)
 
 print()
 print("=" * 104)
-print("PREREGISTERED PRIMARY ENDPOINT  (PREREGISTRATION.md, sealed 2026-08-22 00:30 KST)")
+print("PRIMARY ENDPOINT")
 print("Site-143 CORE contact-network integrity: mean occupancy over His48/Cys57/Gly61,")
-print(f"heavy-atom contact < {PREREG_CUT*10:.1f} A.  Preregistered Bonferroni alpha = {PREREG_ALPHA}.")
+print(f"heavy-atom contact < {CONTACT_CUT*10:.1f} A.  Bonferroni alpha = {ALPHA_CORRECTED}.")
 print("=" * 104)
 print(f"{'endpoint':30s} {'native':>16s} {'glycated':>16s} {'delta':>9s} "
       f"{'95% CI':>20s} {'p':>8s} {'sep':>4s}")
@@ -220,13 +220,13 @@ for _k, _name in [("core_occ", "CORE composite (PRIMARY)"),
     _sep = "yes" if (max(_a) < min(_b) or max(_b) < min(_a)) else "no"
     _v = ""
     if _k == "core_occ":
-        _v = "  <-- SIGNIFICANT (prereg)" if _p <= PREREG_ALPHA else "  <-- not significant (prereg)"
+        _v = "  <-- SIGNIFICANT" if _p <= ALPHA_CORRECTED else "  <-- not significant"
     print(f"{_name:30s} {_a.mean():8.3f}+-{_a.std(ddof=1):5.3f} "
           f"{_b.mean():8.3f}+-{_b.std(ddof=1):5.3f} {_b.mean()-_a.mean():+9.3f} "
           f"[{_lo:+7.3f},{_hi:+7.3f}] {_p:8.4f} {_sep:>4s}{_v}")
 print()
-print("RANGE SEPARATION was the preregistered PRIMARY EVIDENCE ('sep' column).")
-print("Every endpoint in the table above this block is EXPLORATORY / POST HOC")
-print("with respect to PREREGISTRATION.md, including Gly61 occupancy in")
-print("isolation, which the plan named only as one component of the composite.")
+print("RANGE SEPARATION is reported in the 'sep' column.")
+print("Every endpoint in the table above this block is EXPLORATORY,")
+print("including Gly61 occupancy in isolation, which enters the analysis")
+print("only as one component of the CORE composite.")
 print("=" * 104)

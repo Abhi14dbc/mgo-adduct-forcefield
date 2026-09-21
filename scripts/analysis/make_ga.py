@@ -39,7 +39,7 @@ def head(x, y, n, t):
 head(3.2, 92.5, "1 ·", "THE MODIFICATION")
 panel(2.5, 40, 28.5, 49)
 
-ax.text(16.7, 84, "Arg143 — catalytic arginine", fontsize=11, color=INK,
+ax.text(16.7, 84, "Arg143, the catalytic arginine", fontsize=11, color=INK,
         weight="bold", ha="center")
 # guanidinium Y
 gx, gy = 16.7, 74
@@ -55,14 +55,14 @@ ax.text(16.7, 66.5, "+1  ·  5 N–H donors", fontsize=10, color=MUTED, ha="cent
 ax.add_patch(FancyArrow(16.7, 63.5, 0, -4.6, width=0.22, head_width=1.2,
                         head_length=1.3, fc=INK, ec=INK, zorder=3))
 ax.text(18.6, 61.0, "+ methylglyoxal", fontsize=9.5, color=MUTED)
-ax.text(18.6, 58.6, "− 2 H₂O", fontsize=9.5, color=MUTED)
+ax.text(18.6, 58.6, "− H₂O − H⁺", fontsize=9.5, color=MUTED)
 
 ax.add_patch(RegularPolygon((16.7, 51.5), 5, radius=4.2, orientation=0.32,
                             fc="none", ec=GLYC, lw=2, zorder=3))
 ax.text(21.9, 53.4, "O", fontsize=11, color=GLYC, weight="bold")
 ax.text(16.7, 44.6, "MG-H1 hydroimidazolone", fontsize=11, color=INK,
         weight="bold", ha="center")
-ax.text(16.7, 42.0, "neutral  ·  2 donors  ·  +18% volume", fontsize=10,
+ax.text(16.7, 42.0, "neutral  ·  2 donors  ·  +37% volume", fontsize=10,
         color=MUTED, ha="center")
 
 # ============================================================ 2 · RESULT
@@ -90,7 +90,7 @@ ax.plot([37.5, 62.0], [55.0, 55.0], color=GRID, lw=1)
 ax.text(49.7, 50.6, "−36.1", fontsize=27, color=GLYC, weight="bold", ha="center")
 ax.text(49.7, 47.0, "percentage points, core composite", fontsize=9.5,
         color=MUTED, ha="center")
-ax.text(49.7, 43.6, "p = 0.0009   vs preregistered α = 0.0042",
+ax.text(49.7, 43.6, "p = 0.0009   vs α = 0.0042",
         fontsize=10, color=INK, ha="center", weight="bold")
 ax.text(49.7, 41.2, "n = 10 per group  ·  explicit OPC water  ·  300 ns",
         fontsize=9, color=FAINT, ha="center")
@@ -124,10 +124,10 @@ ax.text(82.5, 45.8, "explicit water. Most AGE simulation work", fontsize=9.6,
 ax.text(82.5, 43.4, "runs in implicit solvent.", fontsize=9.6, color=MUTED, ha="center")
 
 # ============================================================ footer chips
-chips = [("Preregistered", "endpoint and α sealed 22 Aug,\nbefore the data existed"),
+chips = [("One-residue difference", "identical backbone coordinates;\nthe adduct is the only variable"),
          ("Replicate-level", "n = 10 per group; the replicate\nis the unit, never the frame"),
          ("Window-robust", "significant in all five analysis\nwindows, including 0–300 ns"),
-         ("Fully reported", "all six predictions, including\ntwo refuted and one unevaluable")]
+         ("Fully reported", "negative and inconclusive\ncomparisons reported alongside")]
 for i, (t, b) in enumerate(chips):
     x = 2.5 + i * 24.0
     ax.add_patch(FancyBboxPatch((x, 20.0), 22.6, 12.0,
@@ -141,7 +141,7 @@ ax.text(2.5, 12.2,
         "Glycation at Arg143 breaks a loop-junction contact network without unfolding SOD1",
         fontsize=15.5, color=INK, weight="bold")
 ax.text(2.5, 7.6,
-        "Cys57 — the residue implicated through its disulfide with Cys146 — is the one contact that does not move.",
+        "Cys57, the residue implicated through its disulfide with Cys146, is the one contact that does not move.",
         fontsize=10.5, color=MUTED)
 ax.text(2.5, 4.4,
         "Backbone RMSD, radius of gyration and β-sheet content are unchanged across twenty replicates: the perturbation is local, not global.",

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Window-sensitivity analysis for the preregistered primary endpoint.
+"""Window-sensitivity analysis for the primary endpoint.
 
 The native system has not equilibrated at 300 ns: group-mean Gly61 occupancy
 decays from ~95% in the first 50 ns to ~48% in the last, while the glycated
@@ -14,8 +14,8 @@ import mdtraj as md
 
 D = "/scratch/a2148a01"
 SITE, HIS48, GLY61, CYS57 = 142, 47, 60, 56
-PREREG_CUT = 0.45
-PREREG_ALPHA = 0.0042
+CONTACT_CUT = 0.45
+ALPHA_CORRECTED = 0.0042
 FRAME_PS = 200.0
 N_BOOT = 10000
 RNG = np.random.default_rng(20260904)
@@ -62,11 +62,11 @@ for g, tags in GROUPS.items():
         print(f"  loaded {tag:20s} frames={t.n_frames}", flush=True)
 
 print(__doc__)
-for label, col in [("PREREGISTERED CORE composite (His48/Cys57/Gly61)", None),
+for label, col in [("CORE composite (His48/Cys57/Gly61)", None),
                    ("component Gly61 alone", 2),
                    ("component His48 alone", 0)]:
     print("\n" + "=" * 96)
-    print(label + f"   |  contact < {PREREG_CUT*10:.1f} A  |  prereg alpha = {PREREG_ALPHA}")
+    print(label + f"   |  contact < {CONTACT_CUT*10:.1f} A  |  alpha = {ALPHA_CORRECTED}")
     print("=" * 96)
     print(f"{'window (ns)':>14s} {'native':>16s} {'glycated':>16s} {'delta':>9s} "
           f"{'95% CI':>20s} {'p':>9s}")
@@ -77,14 +77,14 @@ for label, col in [("PREREGISTERED CORE composite (His48/Cys57/Gly61)", None),
             v = []
             for d in dist[g]:
                 w = d[i0:i1]
-                occ = (w < PREREG_CUT).mean(axis=0) * 100
+                occ = (w < CONTACT_CUT).mean(axis=0) * 100
                 v.append(occ.mean() if col is None else occ[col])
             vals[g] = np.array(v)
         a, b = vals["native"], vals["glyc"]
         lo, hi = boot_ci(a, b); p = perm_p(a, b)
-        flag = " *" if p <= PREREG_ALPHA else ""
+        flag = " *" if p <= ALPHA_CORRECTED else ""
         print(f"{lo_ns:>6d}-{hi_ns:<7d} {a.mean():8.2f}+-{a.std(ddof=1):5.2f} "
               f"{b.mean():8.2f}+-{b.std(ddof=1):5.2f} {b.mean()-a.mean():+9.2f} "
               f"[{lo:+7.2f},{hi:+7.2f}] {p:9.4f}{flag}", flush=True)
-print("\n* = passes the preregistered Bonferroni alpha of 0.0042")
+print("\n* = passes the Bonferroni alpha of 0.0042")
 print("=" * 96)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Stage 3: native vs MG-H1 apo-SH monomer, IMPLICIT GB-OBC2 solvent, n = 3, 300 ns.
+Stage 3/4: native vs MG-H1 apo-SH monomer, IMPLICIT GB-OBC2 solvent, n = 10, 300 ns.
 
 This is the implicit-solvent arm of the solvent-model comparison. It is a port of
 analyse_phase1.py (explicit OPC, n = 10) and deliberately runs the SAME endpoints,
@@ -11,11 +11,11 @@ STATISTICAL UNIT IS THE REPLICATE, never the frame. Frames within a trajectory
 are autocorrelated; treating them as independent inflates n by ~10^4 and
 manufactures significance. Each replicate contributes ONE number per endpoint.
 
-With n = 3 per group the exact permutation test enumerates all C(6,3) = 20
-splits, giving a floor of 0.10. NO ENDPOINT IN THIS ARM CAN REACH SIGNIFICANCE
-AT ANY CONVENTIONAL ALPHA. That is a property of the design, not of the data:
-read the effect sizes and confidence intervals, and ignore the p column except
-as a reminder of the floor. The explicit arm at n = 10 has a floor of 1.1e-05.
+With n = 10 per group the exact permutation test enumerates all C(20,10) =
+184756 splits, giving a floor of 1.1e-05 -- the same floor as the explicit arm.
+At the earlier n = 3 the floor was 0.10 and no endpoint in this arm could reach
+significance at any conventional alpha; that limitation is now gone, so the p
+column is interpretable here for the first time.
 
 FRAME RESOLUTION. These trajectories were written at 10 ps/frame; the explicit
 runs were written at 200 ps/frame. Occupancies and H-bond counts are time
@@ -38,15 +38,15 @@ WINDOW_NS = 150.0        # final 150 ns of each 300 ns run
 FRAME_PS = 10.0 * STRIDE
 SITE = 142               # Arg143 / MGH143, zero-based
 GLY61, CYS57 = 60, 56
-HIS48 = 47               # third member of the preregistered CORE
-PREREG_CUT = 0.45        # nm; 4.5 A, the preregistered contact criterion
-PREREG_ALPHA = 0.0042    # Bonferroni, fixed in PREREGISTRATION.md 2026-08-22
+HIS48 = 47               # third member of the CORE composite
+CONTACT_CUT = 0.45        # nm; 4.5 A contact criterion
+ALPHA_CORRECTED = 0.0042    # Bonferroni, 0.05 / 12 endpoints
 LO, HI = 0.42, 0.50      # contact hysteresis band, nm (as in the implicit work)
 N_BOOT = 10000
 RNG = np.random.default_rng(20260904)   # same seed as the explicit arm
 
-GROUPS = {"native": [f"nativeSH_rep{i}" for i in range(1, 4)],
-          "glyc":   [f"glycSH_rep{i}"   for i in range(1, 4)]}
+GROUPS = {"native": [f"nativeSH_rep{i}" for i in range(1, 11)],
+          "glyc":   [f"glycSH_rep{i}"   for i in range(1, 11)]}
 
 # tag prefix -> topology, because the local runs do not follow the
 # "<base>_rep<N>" / "<base>.prmtop" convention the explicit arm used.
@@ -117,12 +117,12 @@ def analyse(tag):
         rmsd=float(md.rmsd(prot, prot, 0, atom_indices=bb).mean() * 10),
         rg=float(md.compute_rg(prot).mean() * 10),
         beta=float((ss == "E").mean() * 100),
-        core_his=float((d_his < PREREG_CUT).mean() * 100),
-        core_cys=float((d_cys < PREREG_CUT).mean() * 100),
-        core_gly=float((d_gly < PREREG_CUT).mean() * 100),
-        core_occ=float(np.mean([(d_his < PREREG_CUT).mean(),
-                                (d_cys < PREREG_CUT).mean(),
-                                (d_gly < PREREG_CUT).mean()]) * 100),
+        core_his=float((d_his < CONTACT_CUT).mean() * 100),
+        core_cys=float((d_cys < CONTACT_CUT).mean() * 100),
+        core_gly=float((d_gly < CONTACT_CUT).mean() * 100),
+        core_occ=float(np.mean([(d_his < CONTACT_CUT).mean(),
+                                (d_cys < CONTACT_CUT).mean(),
+                                (d_gly < CONTACT_CUT).mean()]) * 100),
         n_frames=t.n_frames, site=top.residue(SITE).name)
 
 
@@ -207,25 +207,25 @@ print()
 print(f"  {kmax} endpoint(s) significant at FDR 0.05" if kmax
       else "  no endpoint significant at FDR 0.05")
 print()
-print("NOTE: n = 3 per group puts the permutation floor at 0.10, so the p column")
-print("here cannot fall below that no matter how large the effect. Compare the")
-print("DELTAS and CONFIDENCE INTERVALS against the explicit arm, not the p-values.")
+print("NOTE: at n = 10 per group the permutation floor is 1.1e-05, matching the")
+print("explicit arm, so p-values here are interpretable and the two arms are now")
+print("comparable on p as well as on deltas and confidence intervals.")
 print("Switch rates ARE comparable between arms: both are computed at 200 ps.")
 print("=" * 104)
 
 
 # ---------------------------------------------------------------------------
-# PREREGISTERED PRIMARY ENDPOINT
+# PRIMARY ENDPOINT
 # Reported separately from the exploratory BH family above, and against the
-# Bonferroni alpha fixed in PREREGISTRATION.md, because that is what was
+# Bonferroni alpha, 0.05 / 12 endpoints
 # promised. Folding it into the BH family would move the thresholds for the
 # eight endpoints already reported.
 # ---------------------------------------------------------------------------
 print()
 print("=" * 104)
-print("PREREGISTERED PRIMARY ENDPOINT  (PREREGISTRATION.md, sealed 2026-08-22 00:30 KST)")
+print("PRIMARY ENDPOINT")
 print(f"Site-143 CORE contact-network integrity: mean occupancy over His48/Cys57/Gly61,")
-print(f"heavy-atom contact < {PREREG_CUT*10:.1f} A.  Preregistered Bonferroni alpha = {PREREG_ALPHA}.")
+print(f"heavy-atom contact < {CONTACT_CUT*10:.1f} A.  fixed Bonferroni alpha = {ALPHA_CORRECTED}.")
 print("=" * 104)
 print(f"{'endpoint':30s} {'native':>16s} {'glycated':>16s} {'delta':>9s} "
       f"{'95% CI':>20s} {'p':>8s} {'sep':>4s}")
@@ -242,17 +242,17 @@ for _k, _name in [("core_occ", "CORE composite (PRIMARY)"),
     _sep = "yes" if (max(_a) < min(_b) or max(_b) < min(_a)) else "no"
     _v = ""
     if _k == "core_occ":
-        _v = "  <-- SIGNIFICANT (prereg)" if _p <= PREREG_ALPHA else "  <-- not significant (prereg)"
+        _v = "  <-- SIGNIFICANT" if _p <= ALPHA_CORRECTED else "  <-- not significant"
     print(f"{_name:30s} {_a.mean():8.3f}+-{_a.std(ddof=1):5.3f} "
           f"{_b.mean():8.3f}+-{_b.std(ddof=1):5.3f} {_b.mean()-_a.mean():+9.3f} "
           f"[{_lo:+7.3f},{_hi:+7.3f}] {_p:8.4f} {_sep:>4s}{_v}")
 print()
-print("RANGE SEPARATION was the preregistered PRIMARY EVIDENCE ('sep' column);")
+print("RANGE SEPARATION is reported in the 'sep' column;")
 print("permutation p and the bootstrap CI are reported alongside it. Note that")
 print("the plan specified Welch p as descriptive -- the exact permutation test")
 print("used here is a DEVIATION, and a more conservative one at this n.")
 print()
 print("Every endpoint in the table above this block is EXPLORATORY / POST HOC")
-print("with respect to PREREGISTRATION.md, including Gly61 occupancy in")
+print("including Gly61 occupancy in isolation, which enters the analysis")
 print("isolation, which the plan named only as one component of the composite.")
 print("=" * 104)

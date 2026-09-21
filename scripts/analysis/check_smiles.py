@@ -55,7 +55,7 @@ print(f"  Arg -> MG-H1 : {Chem.GetFormalCharge(arg):+d} -> "
       "   (protein -6 -> -7: consistent)")
 print(f"  Lys -> CEL   : {Chem.GetFormalCharge(lys):+d} -> "
       f"{Chem.GetFormalCharge(cel):+d}   delta {Chem.GetFormalCharge(cel)-Chem.GetFormalCharge(lys):+d}"
-      "   (preregistration states -2: consistent)")
+      "   (side-chain charge change -2)")
 print()
 
 # hydrogen-bond donor / acceptor counts -- the basis of the P4 explanation

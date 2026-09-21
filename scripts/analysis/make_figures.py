@@ -154,11 +154,11 @@ save(fig, "fig3_block_decay")
 
 # ---------------------------------------------------------------- F4 H-bond
 lbl = ["Implicit GB-OBC2\n100 ns, n=3\nper-replicate windows",
-       "Implicit GB-OBC2\n300 ns, n=3\nmatched window",
+       "Implicit GB-OBC2\n300 ns, n=10\nmatched window",
        "Explicit OPC\n300 ns, n=10\nmatched window"]
-dd = [-1.923, -1.100, -0.081]
-ll = [-2.438, -1.896, -0.412]
-hh = [-1.483, -0.276, 0.303]
+dd = [-1.923, -0.654, -0.081]
+ll = [-2.438, -1.195, -0.412]
+hh = [-1.483, -0.120, 0.303]
 fig, ax = plt.subplots(figsize=(5.2, 3.0))
 y = np.arange(3)[::-1]
 cols = [MUTED, MUTED, GLYC]
@@ -191,7 +191,7 @@ for i, (m, s_) in enumerate(zip(mean, sd)):
 ax.set_ylabel("Site-143 protein H-bonds")
 ax.set_ylim(0, 3.15)
 ax.grid(axis="y", color=GRID, lw=0.7, zorder=0); ax.set_axisbelow(True)
-ax.set_title("CEA reverses direction — guanidinium retained", fontsize=9, color=MUTED, pad=9)
+ax.set_title("CEA reverses direction: guanidinium retained", fontsize=9, color=MUTED, pad=9)
 save(fig, "fig5_adduct_series")
 
 print("\nAll five written to " + os.path.abspath(OUT))
